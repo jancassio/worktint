@@ -1,0 +1,84 @@
+{
+  "name": "worktint",
+  "displayName": "Worktint",
+  "description": "Auto-colors VS Code windows per git worktree. Dormant until a repo has more than one worktree.",
+  "version": "0.0.1",
+  "publisher": "jancassio",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": ["Other", "SCM Providers"],
+  "main": "./dist/extension.js",
+  "activationEvents": ["onStartupFinished"],
+  "contributes": {
+    "commands": [
+      {
+        "command": "worktint.pickColor",
+        "title": "Worktint: Pick color for this worktree"
+      },
+      {
+        "command": "worktint.resetWorktree",
+        "title": "Worktint: Reset this worktree"
+      },
+      {
+        "command": "worktint.resetAll",
+        "title": "Worktint: Reset all"
+      },
+      {
+        "command": "worktint.toggleChrome",
+        "title": "Worktint: Toggle chrome coloring"
+      }
+    ],
+    "configuration": {
+      "title": "Worktint",
+      "properties": {
+        "worktint.chrome.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Tint window chrome for worktrees."
+        },
+        "worktint.chrome.titleBar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Tint the title bar (needs window.titleBarStyle: custom)."
+        },
+        "worktint.chrome.activityBar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Tint the activity bar."
+        },
+        "worktint.chrome.statusBar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Tint the status bar."
+        },
+        "worktint.chrome.editorTabs": {
+          "type": "boolean",
+          "default": true,
+          "description": "Tint the active editor-tab accent."
+        },
+        "worktint.statusBarIndicator.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show the colored status-bar worktree indicator."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "bun build ./src/extension.ts --outdir=dist --target=node --format=cjs --external=vscode --sourcemap=linked",
+    "watch": "bun build ./src/extension.ts --outdir=dist --target=node --format=cjs --external=vscode --sourcemap=linked --watch",
+    "test:unit": "bun test",
+    "build:test": "bunx tsc -p tsconfig.test.json",
+    "pretest:integration": "bun run build && bun run build:test",
+    "test:integration": "vscode-test",
+    "vscode:prepublish": "bun run build"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.14",
+    "@types/vscode": "^1.90.0",
+    "@vscode/test-cli": "^0.0.15",
+    "@vscode/test-electron": "^3.0.0",
+    "typescript": "^6.0.3"
+  }
+}
