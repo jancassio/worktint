@@ -25,12 +25,12 @@ The "color VS Code windows per repo/branch/worktree" space already has entrants 
 - **Zero git footprint** — never dirties `git status`, never asks the user to edit `.gitignore` by hand.
 - **Deterministic, curated, theme-aware palettes** — stable and accessible, never random, never ugly.
 
-Peacock is manual and writes into the repo. Several worktree tools are automatic but still lean on user rules or leave settings-file residue. Worktint's story — *"automatic, and it never touches your repo"* — is clean and ownable.
+Peacock is manual and writes into the repo. Several worktree tools are automatic but still lean on user rules or leave settings-file residue. Worktint's story — _"automatic, and it never touches your repo"_ — is clean and ownable.
 
 ## 3. Approaches considered
 
-- **Global/user-settings coloring** — *rejected.* The user `settings.json` is a single file shared by every window; `workbench.colorCustomizations` there cannot hold distinct per-window colors, so simultaneously open worktree windows would stomp each other.
-- **Pure `.vscode/settings.json` (Peacock-style) as the whole product** — *rejected as the sole mechanism.* It dirties git and, for Peacock, requires manual color selection.
+- **Global/user-settings coloring** — _rejected._ The user `settings.json` is a single file shared by every window; `workbench.colorCustomizations` there cannot hold distinct per-window colors, so simultaneously open worktree windows would stomp each other.
+- **Pure `.vscode/settings.json` (Peacock-style) as the whole product** — _rejected as the sole mechanism._ It dirties git and, for Peacock, requires manual color selection.
 - **Chosen: private "brain" (extension storage) + two render layers.** Extension-private storage decides and remembers colors; a status-bar item renders the always-on cue with no files; workspace settings render the optional chrome tint, hidden from git via `.git/info/exclude`.
 
 ## 4. Architecture
@@ -56,15 +56,15 @@ Peacock is manual and writes into the repo. Several worktree tools are automatic
 
 ### Units (each independently testable)
 
-| Unit | Responsibility | Depends on |
-|------|----------------|------------|
-| `worktreeDetector` | Locate git common dir; determine whether repo has >1 worktree; identify current worktree path | filesystem only |
-| `colorAssigner` | Map worktree path -> palette slot (deterministic seed + per-repo collision probing); honor manual overrides | brain (pure data) |
-| `paletteProvider` | Provide light/dark preset palettes and select by theme kind | VS Code theme kind |
-| `settingsWriter` | Merge/restore `workbench.colorCustomizations` at Workspace scope without clobbering user values | VS Code config API + brain |
-| `excludeEditor` | Ensure `.vscode/settings.json` is listed in `.git/info/exclude`; detect tracked-file case | filesystem + git binary (opportunistic) |
-| `statusBarIndicator` | Render colored dot + branch label + tooltip | VS Code status bar API |
-| `brain` | Persist assignments, recorded writes, overrides, toggles | `globalState` |
+| Unit                 | Responsibility                                                                                              | Depends on                              |
+| -------------------- | ----------------------------------------------------------------------------------------------------------- | --------------------------------------- |
+| `worktreeDetector`   | Locate git common dir; determine whether repo has >1 worktree; identify current worktree path               | filesystem only                         |
+| `colorAssigner`      | Map worktree path -> palette slot (deterministic seed + per-repo collision probing); honor manual overrides | brain (pure data)                       |
+| `paletteProvider`    | Provide light/dark preset palettes and select by theme kind                                                 | VS Code theme kind                      |
+| `settingsWriter`     | Merge/restore `workbench.colorCustomizations` at Workspace scope without clobbering user values             | VS Code config API + brain              |
+| `excludeEditor`      | Ensure `.vscode/settings.json` is listed in `.git/info/exclude`; detect tracked-file case                   | filesystem + git binary (opportunistic) |
+| `statusBarIndicator` | Render colored dot + branch label + tooltip                                                                 | VS Code status bar API                  |
+| `brain`              | Persist assignments, recorded writes, overrides, toggles                                                    | `globalState`                           |
 
 **Design rule:** the brain and all pure logic (detection parsing, hash→slot assignment, collision probing, palette selection, exclude-file editing, colorCustomizations merge/restore) live in **framework-free modules** so they are unit-testable without an editor host.
 
@@ -81,10 +81,10 @@ Peacock is manual and writes into the repo. Several worktree tools are automatic
 
 ## 6. Color assignment
 
-- **Seed = worktree root path** — always present, stable, survives branch switches and detached HEAD. (Branch is displayed as a label but is *not* used to compute color, which sidesteps the missing-branch problem.)
+- **Seed = worktree root path** — always present, stable, survives branch switches and detached HEAD. (Branch is displayed as a label but is _not_ used to compute color, which sidesteps the missing-branch problem.)
 - **Preferred slot** = `hash(path) % paletteSize` — deterministic, so a given worktree tends to get the same color everywhere.
-- **Uniqueness guarantee:** among worktrees *of the same repository*, if the preferred slot is already assigned to another worktree, probe to the next free slot and **persist** the assignment in the brain. Result: fully deterministic in the no-collision case, but never two identical colors within one repo.
-- **Manual override:** a *Pick color for this worktree* command pins a worktree to a chosen palette slot; stored in the brain and preferred over the computed slot.
+- **Uniqueness guarantee:** among worktrees _of the same repository_, if the preferred slot is already assigned to another worktree, probe to the next free slot and **persist** the assignment in the brain. Result: fully deterministic in the no-collision case, but never two identical colors within one repo.
+- **Manual override:** a _Pick color for this worktree_ command pins a worktree to a chosen palette slot; stored in the brain and preferred over the computed slot.
 
 ## 7. Palettes (theme-aware, curated)
 
@@ -94,7 +94,7 @@ Peacock is manual and writes into the repo. Several worktree tools are automatic
 
 ## 8. Layer 1 — status-bar indicator (always-on, zero files)
 
-- A `StatusBarItem` showing `● feature/login`, where the dot (`$(circle-filled)`) foreground is tinted to the worktree's palette color. (Status-bar item *foreground* accepts arbitrary hex; *background* is intentionally not used because VS Code restricts it to error/warning theme colors.)
+- A `StatusBarItem` showing `● feature/login`, where the dot (`$(circle-filled)`) foreground is tinted to the worktree's palette color. (Status-bar item _foreground_ accepts arbitrary hex; _background_ is intentionally not used because VS Code restricts it to error/warning theme colors.)
 - Tooltip: worktree name, branch, path, assigned color.
 - This layer always works — even in repositories where chrome writes are declined — with no `.vscode` write and no git footprint.
 
@@ -103,27 +103,28 @@ Peacock is manual and writes into the repo. Several worktree tools are automatic
 - Writes `workbench.colorCustomizations` for the enabled elements — title bar, activity bar, status bar, editor-tab accent — to the worktree's `.vscode/settings.json` via `ConfigurationTarget.Workspace`.
 - **Never clobbers the user:** read existing customizations, merge only Worktint's keys, and record in the brain exactly which keys/values were set so reset restores prior state precisely.
 - **Keep git clean:** ensure `.vscode/settings.json` is listed in `.git/info/exclude` (local, untracked, shared across worktrees via the common git dir); the tracked `.gitignore` is never modified.
-- **Edge case — already tracked:** if `.vscode/settings.json` is already committed, `.git/info/exclude` cannot hide it. Detect this (one opportunistic `git ls-files` check) and show a **one-time notification**: *"This repo tracks `.vscode/settings.json`; chrome coloring would modify it. Enable anyway / keep status-bar-only."* Default is the safe choice (status-bar-only).
+- **Edge case — already tracked:** if `.vscode/settings.json` is already committed, `.git/info/exclude` cannot hide it. Detect this (one opportunistic `git ls-files` check) and show a **one-time notification**: _"This repo tracks `.vscode/settings.json`; chrome coloring would modify it. Enable anyway / keep status-bar-only."_ Default is the safe choice (status-bar-only).
 - **`window.titleBarStyle`:** title-bar tinting requires `custom`. If title-bar tinting is enabled but the style isn't `custom`, prompt once to set it (user-global); if declined, skip the title bar and note it. Other elements are unaffected.
 
 ## 10. Settings surface (zero-setup, but adjustable)
 
 Sensible defaults; every option is optional.
 
-| Setting | Default | Purpose |
-|---------|---------|---------|
-| `worktint.chrome.enabled` | `true` | Master toggle for the chrome-tint layer |
-| `worktint.chrome.titleBar` | `true` | Tint the title bar |
-| `worktint.chrome.activityBar` | `true` | Tint the activity bar |
-| `worktint.chrome.statusBar` | `true` | Tint the status bar |
-| `worktint.chrome.editorTabs` | `true` | Tint the active editor-tab accent |
-| `worktint.statusBarIndicator.enabled` | `true` | Show the status-bar dot + branch label |
+| Setting                               | Default | Purpose                                 |
+| ------------------------------------- | ------- | --------------------------------------- |
+| `worktint.chrome.enabled`             | `true`  | Master toggle for the chrome-tint layer |
+| `worktint.chrome.titleBar`            | `true`  | Tint the title bar                      |
+| `worktint.chrome.activityBar`         | `true`  | Tint the activity bar                   |
+| `worktint.chrome.statusBar`           | `true`  | Tint the status bar                     |
+| `worktint.chrome.editorTabs`          | `true`  | Tint the active editor-tab accent       |
+| `worktint.statusBarIndicator.enabled` | `true`  | Show the status-bar dot + branch label  |
 
 Commands:
-- *Worktint: Pick color for this worktree*
-- *Worktint: Reset this worktree*
-- *Worktint: Reset all*
-- *Worktint: Toggle chrome coloring*
+
+- _Worktint: Pick color for this worktree_
+- _Worktint: Reset this worktree_
+- _Worktint: Reset all_
+- _Worktint: Toggle chrome coloring_
 
 ## 11. Lifecycle & cleanup
 
