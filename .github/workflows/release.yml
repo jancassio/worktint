@@ -1,0 +1,59 @@
+name: Release
+
+# Required repository secrets (Settings > Secrets and variables > Actions):
+#   VSCE_PAT - Personal Access Token for the VS Code Marketplace (vsce publish).
+#              If unset, the Marketplace publish step is skipped rather than failing.
+#   OVSX_PAT - Personal Access Token for Open VSX (ovsx publish).
+#              If unset, the Open VSX publish step is skipped rather than failing.
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build extension
+        run: bun run build
+
+      - name: Package VSIX
+        run: bun run package
+
+      - name: Locate VSIX
+        id: vsix
+        run: echo "path=$(ls ./*.vsix | head -n 1)" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ steps.vsix.outputs.path }}
+          generate_release_notes: true
+
+      - name: Publish to VS Code Marketplace
+        if: env.VSCE_PAT != ''
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: bun run publish:vsce
+
+      - name: Publish to Open VSX
+        if: env.OVSX_PAT != ''
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
+        run: bun run publish:ovsx

@@ -1,0 +1,24 @@
+# Only dist/extension.js (+ .map), README.md, CHANGELOG.md, LICENSE, and
+# images/icon.png should end up in the packaged VSIX.
+#
+# NOTE: dist/ is gitignored but MUST ship in the VSIX — do not exclude it here.
+
+.vscode/**
+.vscode-test/**
+.vscode-test.mjs
+src/**
+dist-test/**
+docs/**
+node_modules/**
+.github/**
+.claude/**
+
+**/*.ts
+**/tsconfig*.json
+biome.json
+bun.lock
+.gitignore
+.editorconfig
+
+CONTRIBUTING.md
+*.vsix

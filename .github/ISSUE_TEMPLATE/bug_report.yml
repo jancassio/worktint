@@ -1,0 +1,77 @@
+name: Bug report
+description: Report a problem with Worktint
+title: "bug: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. Please fill out the
+        details below — it helps a lot with reproducing the issue.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the bug and what you expected instead.
+      placeholder: Tell us what you saw, and what you expected to see.
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro-steps
+    attributes:
+      label: Steps to reproduce
+      description: Step-by-step instructions to reproduce the behavior.
+      placeholder: |
+        1. Open a repo with multiple worktrees
+        2. Run '...'
+        3. See error
+    validations:
+      required: true
+
+  - type: input
+    id: extension-version
+    attributes:
+      label: Worktint version
+      description: Found in the Extensions view, or in `package.json` "version".
+      placeholder: e.g. 0.0.1
+    validations:
+      required: true
+
+  - type: input
+    id: editor-version
+    attributes:
+      label: VS Code / VS Codium version
+      description: Help > About (or `code --version` / `codium --version`).
+      placeholder: e.g. VS Code 1.90.2
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: e.g. macOS 15.4, Windows 11, Ubuntu 24.04
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Output channel logs
+      description: >
+        Please include relevant logs from the "Worktint" output channel
+        (View > Output, then select "Worktint" from the dropdown).
+      render: text
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Anything else that might help — screenshots, workspace layout, etc.
+    validations:
+      required: false

@@ -4,13 +4,38 @@
 	"description": "Auto-colors VS Code windows per git worktree. Dormant until a repo has more than one worktree.",
 	"version": "0.0.1",
 	"publisher": "jancassio",
+	"license": "MIT",
 	"engines": {
 		"vscode": "^1.90.0"
 	},
 	"categories": [
-		"Other",
-		"SCM Providers"
+		"SCM Providers",
+		"Themes"
 	],
+	"keywords": [
+		"git",
+		"worktree",
+		"color",
+		"workspace",
+		"scm",
+		"window",
+		"theme",
+		"multi-root"
+	],
+	"icon": "images/icon.png",
+	"galleryBanner": {
+		"color": "#1e1e2e",
+		"theme": "dark"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/jancassio/worktint.git"
+	},
+	"bugs": {
+		"url": "https://github.com/jancassio/worktint/issues"
+	},
+	"homepage": "https://github.com/jancassio/worktint#readme",
+	"qna": "marketplace",
 	"main": "./dist/extension.js",
 	"activationEvents": [
 		"onStartupFinished"
@@ -79,7 +104,11 @@
 		"build:test": "bunx tsc -p tsconfig.test.json",
 		"pretest:integration": "bun run build && bun run build:test",
 		"test:integration": "vscode-test",
-		"vscode:prepublish": "bun run build"
+		"typecheck": "tsc -p tsconfig.json",
+		"vscode:prepublish": "bun run typecheck && bun run lint && bun run test:unit && bun run build",
+		"package": "vsce package --no-dependencies",
+		"publish:vsce": "vsce publish --no-dependencies",
+		"publish:ovsx": "ovsx publish --no-dependencies"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.2.4",
@@ -87,6 +116,8 @@
 		"@types/vscode": "^1.90.0",
 		"@vscode/test-cli": "^0.0.15",
 		"@vscode/test-electron": "^3.0.0",
+		"@vscode/vsce": "^3.9.2",
+		"ovsx": "^1.0.2",
 		"typescript": "^6.0.3"
 	}
 }

@@ -1,12 +1,49 @@
 # Worktint
 
+[![VS Code Marketplace](https://img.shields.io/visual-studio-marketplace/v/jancassio.worktint?label=VS%20Code%20Marketplace&color=blue)](https://marketplace.visualstudio.com/items?itemName=jancassio.worktint)
+[![Installs](https://img.shields.io/visual-studio-marketplace/i/jancassio.worktint?label=installs)](https://marketplace.visualstudio.com/items?itemName=jancassio.worktint)
+[![Rating](https://img.shields.io/visual-studio-marketplace/r/jancassio.worktint?label=rating)](https://marketplace.visualstudio.com/items?itemName=jancassio.worktint)
+[![Open VSX](https://img.shields.io/open-vsx/v/jancassio/worktint?label=Open%20VSX&color=c160ef)](https://open-vsx.org/extension/jancassio/worktint)
+[![CI](https://github.com/jancassio/worktint/actions/workflows/ci.yml/badge.svg)](https://github.com/jancassio/worktint/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
 Auto-colors your VS Codium / VS Code window per **git worktree**, so parallel
 windows of the same repository are instantly distinguishable.
+
+## Screenshots
+
+<!-- MAINTAINER TODO: capture images/hero.png — two side-by-side VS Code /
+     VS Codium windows on the same repo's worktrees, each tinted a distinct
+     color (title bar + status bar visible), to make the effect obvious at a
+     glance. -->
+
+![Two windows of the same repo, each tinted a different color per worktree](images/hero.png)
+
+*Two worktrees of the same repository, instantly distinguishable by color.*
 
 Running several worktrees of one repo — say, a few AI agents each on their own
 branch — leaves you with a row of identical-looking editor windows. Worktint
 gives each worktree a stable, theme-appropriate color and a labeled status-bar
 indicator, so you always know which window is which.
+
+## Install
+
+**VS Code Marketplace**
+
+Search for "Worktint" in the Extensions view, or install from the
+[Marketplace listing](https://marketplace.visualstudio.com/items?itemName=jancassio.worktint).
+
+**Open VSX** (VS Codium and other Open VSX-based editors)
+
+Install from the [Open VSX listing](https://open-vsx.org/extension/jancassio/worktint).
+
+**Command line**
+
+```bash
+code --install-extension jancassio.worktint
+# or, for VS Codium:
+codium --install-extension jancassio.worktint
+```
 
 ## Activation: dormant until you actually have worktrees
 
@@ -88,8 +125,16 @@ bun run lint             # Biome check (lint + format)
 
 Press <kbd>F5</kbd> (**Run Extension**) to launch an Extension Development Host.
 
+## Contributing
+
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for how to
+set up the project, run the tests, and submit changes.
+
 ## Scope
 
-This is an MVP. A smart-from-theme palette, licensing, non-worktree repo
-coloring, multi-root workspaces, and cross-machine sync are out of scope.
-Publishing (via Open VSX) is not part of this release.
+This is an MVP. A smart-from-theme palette, non-worktree repo coloring,
+multi-root workspaces, and cross-machine sync are out of scope.
+
+## License
+
+[MIT](LICENSE)
