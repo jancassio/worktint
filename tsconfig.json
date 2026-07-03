@@ -1,16 +1,16 @@
 {
-  "compilerOptions": {
-    "module": "node16",
-    "target": "ES2022",
-    "lib": ["ES2022"],
-    "types": ["bun", "node"],
-    "strict": true,
-    "moduleResolution": "node16",
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "noEmit": true,
-    "outDir": "dist"
-  },
-  "include": ["src"],
-  "exclude": ["node_modules", "dist"]
+	"compilerOptions": {
+		"module": "node16",
+		"target": "ES2022",
+		"lib": ["ES2022"],
+		"types": ["bun", "node"],
+		"strict": true,
+		"moduleResolution": "node16",
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"noEmit": true,
+		"outDir": "dist"
+	},
+	"include": ["src"],
+	"exclude": ["node_modules", "dist"]
 }

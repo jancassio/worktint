@@ -1,11 +1,10 @@
+import { describe, expect, it } from "bun:test";
 import { Brain, type MementoLike } from "./brain";
-
-import { describe, it, expect } from "bun:test";
 
 function fakeMemento(): MementoLike {
 	const store = new Map<string, unknown>();
 	return {
-		get: (k) => store.get(k) as any,
+		get: <T>(k: string): T | undefined => store.get(k) as T | undefined,
 		update: (k, v) => {
 			store.set(k, v);
 		},

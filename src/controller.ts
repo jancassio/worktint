@@ -1,18 +1,18 @@
+import * as fs from "node:fs";
 import * as vscode from "vscode";
-import * as fs from "fs";
-import { detectWorktree, type WorktreeInfo } from "./core/worktree";
 import { assignSlot } from "./core/colorAssigner";
+import type { ChromeToggles } from "./core/colorCustomizations";
 import {
+	type PaletteColor,
 	selectPalette,
 	type ThemeKind,
-	type PaletteColor,
 } from "./core/palette";
-import type { ChromeToggles } from "./core/colorCustomizations";
+import { detectWorktree, type WorktreeInfo } from "./core/worktree";
 import type { Brain, RepoState } from "./vscode/brain";
-import { SettingsWriter, isSettingsTracked } from "./vscode/settingsWriter";
-import { StatusBarIndicator } from "./vscode/statusBarIndicator";
 import { readConfig } from "./vscode/config";
 import { getBranch, onBranchChange } from "./vscode/gitBranch";
+import { isSettingsTracked, SettingsWriter } from "./vscode/settingsWriter";
+import { StatusBarIndicator } from "./vscode/statusBarIndicator";
 
 function themeKind(): ThemeKind {
 	switch (vscode.window.activeColorTheme.kind) {
