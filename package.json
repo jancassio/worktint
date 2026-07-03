@@ -73,7 +73,7 @@
 	"scripts": {
 		"build": "bun build ./src/extension.ts --outdir=dist --target=node --format=cjs --external=vscode --sourcemap=linked",
 		"watch": "bun build ./src/extension.ts --outdir=dist --target=node --format=cjs --external=vscode --sourcemap=linked --watch",
-		"test:unit": "bun test",
+		"test:unit": "bun test src/core src/vscode",
 		"lint": "biome check",
 		"lint:fix": "biome check --write",
 		"build:test": "bunx tsc -p tsconfig.test.json",
