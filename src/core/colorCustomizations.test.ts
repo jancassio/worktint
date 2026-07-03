@@ -43,4 +43,20 @@ describe("merge/restore round-trip", () => {
 		const restored = restoreCustomizations(merged, prior);
 		expect(restored).toEqual(existing);
 	});
+
+	it("still removes our keys when prior was JSON round-tripped (undefined dropped)", () => {
+		// globalState serializes to JSON, which strips keys whose value is
+		// `undefined` — so a `prior` recorded for a fresh workspace comes back `{}`.
+		const existing: Record<string, string> = { "editor.background": "#000000" };
+		const ours = buildCustomizations(color, allOn);
+		const merged = mergeCustomizations(existing, ours);
+		const priorAfterJson: Record<string, string | undefined> = JSON.parse(
+			JSON.stringify({
+				...Object.fromEntries(WORKTINT_KEYS.map((k) => [k, existing[k]])),
+			}),
+		);
+		expect(priorAfterJson).toEqual({});
+		const restored = restoreCustomizations(merged, priorAfterJson);
+		expect(restored).toEqual(existing);
+	});
 });

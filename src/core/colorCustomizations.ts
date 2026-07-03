@@ -51,12 +51,17 @@ export function mergeCustomizations(
 	return { ...existing, ...ours };
 }
 
+// Iterate WORKTINT_KEYS (not Object.entries(prior)) so restore is robust when
+// `prior` has been round-tripped through JSON storage, which silently drops keys
+// whose value is `undefined`. Any Worktint key with no recorded prior value is
+// deleted; any with a recorded value is put back exactly.
 export function restoreCustomizations(
 	current: Record<string, string>,
 	prior: Record<string, string | undefined>,
 ): Record<string, string> {
 	const out = { ...current };
-	for (const [k, v] of Object.entries(prior)) {
+	for (const k of WORKTINT_KEYS) {
+		const v = prior[k];
 		if (v === undefined) delete out[k];
 		else out[k] = v;
 	}
