@@ -155,7 +155,7 @@ Commands:
 
 ## 15. Implementation progress (living)
 
-**Branch:** `feat/worktint-mvp` · **Plan:** `docs/superpowers/plans/2026-07-02-worktint.md` · **Toolchain:** Bun (install + `bun build` + `bun test`) with `@vscode/test-electron`/`@vscode/test-cli` for integration tests. Run unit tests with `bun test`; build with `bun run build`; typecheck with `bunx tsc --noEmit`.
+**Branch:** `feat/worktint-mvp` · **Plan:** `docs/superpowers/plans/2026-07-02-worktint.md` · **Toolchain:** Bun (install + `bun build` + `bun test`) with `@vscode/test-electron`/`@vscode/test-cli` for integration tests, and **Biome** for lint/format (`biome.json`, recommended rules). Commands: unit tests `bun test`; build `bun run build`; typecheck `bunx tsc --noEmit`; lint `bun run lint` (fix: `bun run lint:fix`). All four are currently green. New/edited source must keep `bun run lint` clean (Biome defaults: tabs, double quotes, `node:` import protocol).
 
 **Done (committed, TDD, all 24 unit tests green):**
 
@@ -174,4 +174,4 @@ Commands:
 
 - **Task 10** — Wire `src/extension.ts`: instantiate `Brain(context.globalState)` + `Controller`, run `activate(workspaceFolder)`, register the 4 commands, `onDidChangeConfiguration` re-activate, and a `**/.git/worktrees/**` `FileSystemWatcher`. Build, manual smoke test, commit. (Current `extension.ts` is still the no-op stub using `import type * as vscode` — replace with a value import.)
 - **Task 11** — Integration tests: add `tsconfig.test.json` (emit to `dist-test`, `rootDir: src`, `include: ["src/test"]`) and `src/test/integration/activation.test.ts` covering (a) single-worktree repo → `colorCustomizations` untouched, no indicator; (b) >1 worktree → Worktint keys written at Workspace scope + `.vscode/settings.json` added to `.git/info/exclude`; (c) `worktint.resetWorktree` restores prior + removes exclude line. Run `bun run test:integration`.
-- **Task 12** — `README.md` + final green (unit + integration + build).
+- **Task 12** — `README.md` + final green (unit + integration + build + `bun run lint`).
