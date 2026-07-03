@@ -150,3 +150,28 @@ Commands:
 - Coloring non-worktree repositories.
 - Multi-root `.code-workspace` handling.
 - Color synchronization across machines.
+
+---
+
+## 15. Implementation progress (living)
+
+**Branch:** `feat/worktint-mvp` · **Plan:** `docs/superpowers/plans/2026-07-02-worktint.md` · **Toolchain:** Bun (install + `bun build` + `bun test`) with `@vscode/test-electron`/`@vscode/test-cli` for integration tests. Run unit tests with `bun test`; build with `bun run build`; typecheck with `bunx tsc --noEmit`.
+
+**Done (committed, TDD, all 24 unit tests green):**
+
+- Task 0 — Scaffolding: `package.json`, `tsconfig.json` (module/resolution = `node16`), `.gitignore`, `.vscode-test.mjs`, `.vscode/launch.json`, minimal `src/extension.ts`; deps installed.
+- Task 1 — `src/core/hash.ts` (`fnv1a`).
+- Task 2 — `src/core/worktree.ts` (`parseGitFile`, `detectWorktree(folderPath, FsLike)` → `WorktreeInfo`).
+- Task 3 — `src/core/colorAssigner.ts` (`preferredSlot`, `assignSlot` with collision probing).
+- Task 4 — `src/core/palette.ts` (`LIGHT_PALETTE`/`DARK_PALETTE` 8 each, `selectPalette`).
+- Task 5 — `src/core/colorCustomizations.ts` (`buildCustomizations`, `mergeCustomizations`, `restoreCustomizations`, `WORKTINT_KEYS`).
+- Task 6 — `src/core/excludeFile.ts` (`hasLine`, `ensureLine`, `removeLine`).
+- Task 7 — `src/vscode/brain.ts` (`Brain` over `MementoLike`; `RepoState`, `WriteRecord`).
+- Task 8 — `src/vscode/{config,gitBranch,statusBarIndicator,settingsWriter}.ts`. Note: `SettingsWriter.applyChrome(color, toggles, gitCommonDir)` (dropped the unused `worktreePath` param from the plan); `isSettingsTracked(worktreePath)` exported.
+- Task 9 — `src/controller.ts` (`Controller`: `activate`, `resetThisWorktree`, `resetAll`, `pickColor`, `dispose`). Adds: cleanup when a repo drops to 1 worktree; revert-before-reapply so recorded `prior` stays the user's true state; title-bar keys only written when `window.titleBarStyle === 'custom'`.
+
+**Remaining:**
+
+- **Task 10** — Wire `src/extension.ts`: instantiate `Brain(context.globalState)` + `Controller`, run `activate(workspaceFolder)`, register the 4 commands, `onDidChangeConfiguration` re-activate, and a `**/.git/worktrees/**` `FileSystemWatcher`. Build, manual smoke test, commit. (Current `extension.ts` is still the no-op stub using `import type * as vscode` — replace with a value import.)
+- **Task 11** — Integration tests: add `tsconfig.test.json` (emit to `dist-test`, `rootDir: src`, `include: ["src/test"]`) and `src/test/integration/activation.test.ts` covering (a) single-worktree repo → `colorCustomizations` untouched, no indicator; (b) >1 worktree → Worktint keys written at Workspace scope + `.vscode/settings.json` added to `.git/info/exclude`; (c) `worktint.resetWorktree` restores prior + removes exclude line. Run `bun run test:integration`.
+- **Task 12** — `README.md` + final green (unit + integration + build).
