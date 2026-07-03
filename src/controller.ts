@@ -34,6 +34,7 @@ function themeKind(): ThemeKind {
 export class Controller {
 	private indicator = new StatusBarIndicator();
 	private writer = new SettingsWriter();
+	private output: vscode.OutputChannel | undefined;
 	private info: WorktreeInfo | null = null;
 	private color: PaletteColor | undefined;
 	private subscriptions: vscode.Disposable[] = [];
@@ -51,6 +52,23 @@ export class Controller {
 			() => undefined,
 		);
 		return run;
+	}
+
+	/** Fire-and-forget activation that reports failures instead of dropping them. */
+	activateSafely(folderPath: string): void {
+		void this.activate(folderPath).catch((err) => {
+			const message = err instanceof Error ? err.message : String(err);
+			this.getOutput().appendLine(`activate failed: ${message}`);
+			void vscode.window.showWarningMessage(
+				`Worktint: failed to update window chrome (${message}). See the "Worktint" output channel for details.`,
+			);
+		});
+	}
+
+	private getOutput(): vscode.OutputChannel {
+		if (!this.output)
+			this.output = vscode.window.createOutputChannel("Worktint");
+		return this.output;
 	}
 
 	private async doActivate(folderPath: string): Promise<void> {
@@ -95,8 +113,8 @@ export class Controller {
 
 		this.subscriptions.push(
 			onBranchChange(info.worktreePath, () => void this.renderIndicator()),
-			vscode.window.onDidChangeActiveColorTheme(
-				() => void this.activate(folderPath),
+			vscode.window.onDidChangeActiveColorTheme(() =>
+				this.activateSafely(folderPath),
 			),
 		);
 	}
@@ -263,7 +281,7 @@ export class Controller {
 		const watcher = vscode.workspace.createFileSystemWatcher(
 			new vscode.RelativePattern(gitCommonDir, "worktrees/**"),
 		);
-		const reactivate = () => void this.activate(folderPath);
+		const reactivate = () => this.activateSafely(folderPath);
 		watcher.onDidCreate(reactivate);
 		watcher.onDidDelete(reactivate);
 		return watcher;
@@ -277,5 +295,6 @@ export class Controller {
 	dispose(): void {
 		this.clearSubscriptions();
 		this.indicator.dispose();
+		this.output?.dispose();
 	}
 }

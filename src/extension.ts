@@ -9,7 +9,7 @@ export function activate(context: vscode.ExtensionContext): void {
 	controller = new Controller(brain);
 
 	const folder = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
-	if (folder) void controller.activate(folder);
+	if (folder) controller.activateSafely(folder);
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand("worktint.pickColor", () =>
@@ -28,11 +28,11 @@ export function activate(context: vscode.ExtensionContext): void {
 				!c.get("chrome.enabled", true),
 				vscode.ConfigurationTarget.Global,
 			);
-			if (folder) void controller?.activate(folder);
+			if (folder) controller?.activateSafely(folder);
 		}),
 		vscode.workspace.onDidChangeConfiguration((e) => {
 			if (e.affectsConfiguration("worktint") && folder)
-				void controller?.activate(folder);
+				controller?.activateSafely(folder);
 		}),
 		{ dispose: () => controller?.dispose() },
 	);
