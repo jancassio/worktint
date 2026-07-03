@@ -133,4 +133,60 @@ suite("Worktint activation", () => {
 			"no exclude line written for a dormant repo",
 		);
 	});
+
+	test("a previously chosen 'Status bar only' is honored on a later activation", async () => {
+		const repo = fs.mkdtempSync(path.join(os.tmpdir(), "worktint-tracked-"));
+		execFileSync("git", ["init", repo], { stdio: "ignore" });
+		execFileSync("git", ["-C", repo, "config", "user.email", "t@t"], {
+			stdio: "ignore",
+		});
+		execFileSync("git", ["-C", repo, "config", "user.name", "T"], {
+			stdio: "ignore",
+		});
+		fs.mkdirSync(path.join(repo, ".vscode"));
+		fs.writeFileSync(path.join(repo, ".vscode", "settings.json"), "{}\n");
+		execFileSync("git", ["-C", repo, "add", ".vscode/settings.json"], {
+			stdio: "ignore",
+		});
+		execFileSync("git", ["-C", repo, "commit", "-m", "init"], {
+			stdio: "ignore",
+		});
+		execFileSync(
+			"git",
+			[
+				"-C",
+				repo,
+				"worktree",
+				"add",
+				"-b",
+				"tracked-feature",
+				path.join(repo, "..", "tracked-feature"),
+			],
+			{ stdio: "ignore" },
+		);
+
+		const info = detectWorktree(repo, fs);
+		assert.ok(info?.isMultiWorktree, "repo is multi-worktree");
+		if (!info) return;
+
+		const before = { ...workbenchColors() };
+
+		const brain = new Brain(fakeMemento());
+		brain.setRepoState(info.gitCommonDir, {
+			assignments: {},
+			overrides: {},
+			writes: {},
+			trackedChoice: "statusBarOnly",
+		});
+
+		const controller = new Controller(brain);
+		await controller.activate(repo);
+		controller.dispose();
+
+		assert.deepStrictEqual(
+			{ ...workbenchColors() },
+			before,
+			"chrome was not applied to a tracked settings.json once 'Status bar only' was chosen",
+		);
+	});
 });

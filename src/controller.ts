@@ -7,6 +7,10 @@ import {
 	selectPalette,
 	type ThemeKind,
 } from "./core/palette";
+import {
+	evaluateTrackedGuard,
+	resolveTrackedChoice,
+} from "./core/trackedGuard";
 import { detectWorktree, type WorktreeInfo } from "./core/worktree";
 import type { Brain, RepoState } from "./vscode/brain";
 import { readConfig } from "./vscode/config";
@@ -102,15 +106,28 @@ export class Controller {
 		}
 
 		// Tracked-file guard: don't silently dirty a committed .vscode/settings.json.
-		if (isSettingsTracked(info.worktreePath) && !state.trackedAck) {
+		// The user's choice is persisted and re-checked on *every* render, not just
+		// the first time — a later full activation (theme/config change, reload)
+		// must keep honoring "Status bar only" instead of falling through to apply.
+		const tracked = isSettingsTracked(info.worktreePath);
+		let guard = evaluateTrackedGuard(tracked, state.trackedChoice);
+		if (guard.needsPrompt) {
 			const choice = await vscode.window.showWarningMessage(
 				"Worktint: this repo tracks .vscode/settings.json. Chrome coloring would modify a tracked file.",
 				"Enable anyway",
 				"Status bar only",
 			);
-			state.trackedAck = true;
+			state.trackedChoice = resolveTrackedChoice(choice);
 			this.brain.setRepoState(info.gitCommonDir, state);
-			if (choice !== "Enable anyway") return;
+			guard = evaluateTrackedGuard(tracked, state.trackedChoice);
+		}
+		if (!guard.applyChrome) {
+			if (existing) {
+				await this.writer.revertChrome(existing, info.gitCommonDir);
+				delete state.writes[info.worktreePath];
+				this.brain.setRepoState(info.gitCommonDir, state);
+			}
+			return;
 		}
 
 		// Revert any previous write first so the recorded "prior" stays the user's true state.

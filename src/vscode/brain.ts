@@ -1,4 +1,5 @@
 import type { Assignments } from "../core/colorAssigner";
+import type { TrackedChoice } from "../core/trackedGuard";
 
 export interface MementoLike {
 	get<T>(key: string): T | undefined;
@@ -15,7 +16,7 @@ export interface RepoState {
 	assignments: Assignments;
 	overrides: Record<string, number>;
 	writes: Record<string, WriteRecord>;
-	trackedAck?: boolean;
+	trackedChoice?: TrackedChoice;
 }
 
 const PREFIX = "worktint.repo:";

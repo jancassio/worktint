@@ -10,11 +10,15 @@ export function evaluateTrackedGuard(
 	trackedChoice: TrackedChoice | undefined,
 ): TrackedGuardResult {
 	if (!isTracked) return { needsPrompt: false, applyChrome: true };
-	if (trackedChoice === "enabled") return { needsPrompt: false, applyChrome: true };
-	if (trackedChoice === "statusBarOnly") return { needsPrompt: false, applyChrome: false };
+	if (trackedChoice === "enabled")
+		return { needsPrompt: false, applyChrome: true };
+	if (trackedChoice === "statusBarOnly")
+		return { needsPrompt: false, applyChrome: false };
 	return { needsPrompt: true, applyChrome: false };
 }
 
-export function resolveTrackedChoice(promptAnswer: string | undefined): TrackedChoice {
+export function resolveTrackedChoice(
+	promptAnswer: string | undefined,
+): TrackedChoice {
 	return promptAnswer === "Enable anyway" ? "enabled" : "statusBarOnly";
 }
