@@ -52,6 +52,8 @@ export class Controller {
 			return;
 		}
 
+		this.subscriptions.push(this.watchWorktrees(info.gitCommonDir, folderPath));
+
 		if (!info.isMultiWorktree) {
 			// Repo dropped back to a single worktree — clean up anything we applied here.
 			const state = this.brain.getRepoState(info.gitCommonDir);
@@ -237,6 +239,22 @@ export class Controller {
 		state.overrides[info.worktreePath] = picked.index;
 		this.brain.setRepoState(info.gitCommonDir, state);
 		await this.activate(info.worktreePath);
+	}
+
+	private watchWorktrees(
+		gitCommonDir: string,
+		folderPath: string,
+	): vscode.Disposable {
+		// Rooted at the absolute git-common-dir (not workspace-relative) so this
+		// fires for linked worktrees too — their common dir lives outside their
+		// own folder tree.
+		const watcher = vscode.workspace.createFileSystemWatcher(
+			new vscode.RelativePattern(gitCommonDir, "worktrees/**"),
+		);
+		const reactivate = () => void this.activate(folderPath);
+		watcher.onDidCreate(reactivate);
+		watcher.onDidDelete(reactivate);
+		return watcher;
 	}
 
 	private clearSubscriptions(): void {

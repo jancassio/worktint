@@ -36,16 +36,6 @@ export function activate(context: vscode.ExtensionContext): void {
 		}),
 		{ dispose: () => controller?.dispose() },
 	);
-
-	// Re-evaluate when worktrees are added/removed under the git common dir.
-	if (folder) {
-		const watcher = vscode.workspace.createFileSystemWatcher(
-			"**/.git/worktrees/**",
-		);
-		watcher.onDidCreate(() => controller?.activate(folder));
-		watcher.onDidDelete(() => controller?.activate(folder));
-		context.subscriptions.push(watcher);
-	}
 }
 
 export function deactivate(): void {

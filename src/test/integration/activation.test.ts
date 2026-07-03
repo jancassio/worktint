@@ -232,4 +232,72 @@ suite("Worktint activation", () => {
 			"config was restored to this controller's own recorded prior, not overwritten with the other worktree's bogus prior",
 		);
 	});
+
+	test("adding a linked worktree reactivates chrome via the watcher, without a manual call", async () => {
+		const before = { ...workbenchColors() };
+
+		const soloRepo = fs.mkdtempSync(path.join(os.tmpdir(), "worktint-watch-"));
+		execFileSync("git", ["init", soloRepo], { stdio: "ignore" });
+		execFileSync("git", ["-C", soloRepo, "config", "user.email", "t@t"], {
+			stdio: "ignore",
+		});
+		execFileSync("git", ["-C", soloRepo, "config", "user.name", "T"], {
+			stdio: "ignore",
+		});
+		execFileSync(
+			"git",
+			["-C", soloRepo, "commit", "--allow-empty", "-m", "init"],
+			{ stdio: "ignore" },
+		);
+
+		const info = detectWorktree(soloRepo, fs);
+		assert.ok(info && !info.isMultiWorktree, "starts as a solo repo");
+		if (!info) return;
+		const gitCommonDir = info.gitCommonDir;
+
+		const brain = new Brain(fakeMemento());
+		const controller = new Controller(brain);
+		await controller.activate(soloRepo);
+		assert.ok(
+			!fs.existsSync(path.join(soloRepo, ".vscode", "settings.json")),
+			"starts dormant with a single worktree",
+		);
+
+		try {
+			const worktreeParent = fs.mkdtempSync(
+				path.join(os.tmpdir(), "worktint-watch-wt-"),
+			);
+			execFileSync(
+				"git",
+				[
+					"-C",
+					soloRepo,
+					"worktree",
+					"add",
+					"-b",
+					"watch-feature",
+					path.join(worktreeParent, "linked"),
+				],
+				{ stdio: "ignore" },
+			);
+
+			// The watcher fires asynchronously; check *this test's own* brain
+			// state (not the shared workspace config, which can be touched in
+			// the background by the real singleton controller on an unrelated
+			// theme-change event) for an unambiguous, race-free signal.
+			await waitFor(
+				() => brain.getRepoState(gitCommonDir).writes[soloRepo] !== undefined,
+				15000,
+			);
+		} finally {
+			controller.dispose();
+			await vscode.workspace
+				.getConfiguration("workbench")
+				.update(
+					"colorCustomizations",
+					Object.keys(before).length ? before : undefined,
+					vscode.ConfigurationTarget.Workspace,
+				);
+		}
+	});
 });
