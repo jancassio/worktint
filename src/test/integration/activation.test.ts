@@ -300,4 +300,36 @@ suite("Worktint activation", () => {
 				);
 		}
 	});
+
+	test("concurrent activate() calls settle without corrupting the recorded prior", async () => {
+		const folder = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+		assert.ok(folder, "a workspace folder is open");
+		const info = detectWorktree(folder as string, fs);
+		assert.ok(info?.isMultiWorktree, "workspace is multi-worktree");
+		if (!info) return;
+
+		// Self-referential like the resetAll test above: don't assume the
+		// ambient shared config is pristine going in.
+		const before = { ...workbenchColors() };
+
+		const brain = new Brain(fakeMemento());
+		const controller = new Controller(brain);
+
+		await Promise.all([
+			controller.activate(folder as string),
+			controller.activate(folder as string),
+			controller.activate(folder as string),
+		]);
+
+		assert.match(workbenchColors()["statusBar.background"] ?? "", HEX);
+
+		await controller.resetThisWorktree();
+		controller.dispose();
+
+		assert.deepStrictEqual(
+			{ ...workbenchColors() },
+			before,
+			"concurrent activations didn't corrupt the recorded 'prior' — a full reset restores exactly what was there before",
+		);
+	});
 });

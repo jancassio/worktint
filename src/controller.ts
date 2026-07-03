@@ -38,10 +38,22 @@ export class Controller {
 	private color: PaletteColor | undefined;
 	private subscriptions: vscode.Disposable[] = [];
 	private titleBarPrompted = false;
+	private activationQueue: Promise<void> = Promise.resolve();
 
 	constructor(private brain: Brain) {}
 
 	async activate(folderPath: string): Promise<void> {
+		const run = this.activationQueue.then(() => this.doActivate(folderPath));
+		// Keep the queue moving even if this run rejects, so one failure
+		// doesn't wedge every subsequent activation.
+		this.activationQueue = run.then(
+			() => undefined,
+			() => undefined,
+		);
+		return run;
+	}
+
+	private async doActivate(folderPath: string): Promise<void> {
 		this.clearSubscriptions();
 		const info = detectWorktree(folderPath, fs);
 		this.info = info;
