@@ -206,9 +206,12 @@ export class Controller {
 		const info = this.info;
 		if (!info) return;
 		const state = this.brain.getRepoState(info.gitCommonDir);
-		for (const record of Object.values(state.writes)) {
-			await this.writer.revertChrome(record, info.gitCommonDir);
-		}
+		// Only the current window can actually revert its own on-disk
+		// settings.json (workbench config always targets *this* workspace).
+		// Other worktrees' writes can't be undone from here — just drop their
+		// brain-state records so this window stops tracking them.
+		const current = state.writes[info.worktreePath];
+		if (current) await this.writer.revertChrome(current, info.gitCommonDir);
 		this.brain.setRepoState(info.gitCommonDir, {
 			assignments: {},
 			overrides: {},

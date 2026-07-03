@@ -151,6 +151,9 @@ suite("Worktint activation", () => {
 		execFileSync("git", ["-C", repo, "commit", "-m", "init"], {
 			stdio: "ignore",
 		});
+		const worktreeParent = fs.mkdtempSync(
+			path.join(os.tmpdir(), "worktint-tracked-wt-"),
+		);
 		execFileSync(
 			"git",
 			[
@@ -160,7 +163,7 @@ suite("Worktint activation", () => {
 				"add",
 				"-b",
 				"tracked-feature",
-				path.join(repo, "..", "tracked-feature"),
+				path.join(worktreeParent, "tracked-feature"),
 			],
 			{ stdio: "ignore" },
 		);
@@ -187,6 +190,46 @@ suite("Worktint activation", () => {
 			{ ...workbenchColors() },
 			before,
 			"chrome was not applied to a tracked settings.json once 'Status bar only' was chosen",
+		);
+	});
+
+	test("resetAll only reverts the current worktree's record, not other worktrees'", async () => {
+		const folder = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+		assert.ok(folder, "a workspace folder is open");
+		const info = detectWorktree(folder as string, fs);
+		assert.ok(info?.isMultiWorktree, "workspace is multi-worktree");
+		if (!info) return;
+
+		// Snapshot right before *this* controller's own activation — the ambient
+		// shared workspace isn't guaranteed pristine (e.g. a stray theme-change
+		// event can make the real singleton controller re-apply chrome in the
+		// background), so assert against what this controller itself recorded
+		// as "prior", not an assumed-clean baseline.
+		const before = { ...workbenchColors() };
+		const brain = new Brain(fakeMemento());
+		const controller = new Controller(brain);
+		await controller.activate(folder as string);
+
+		// Fabricate a second worktree's recorded write, with a bogus "prior" that
+		// must NEVER end up written into the real (current) worktree's config.
+		const state = brain.getRepoState(info.gitCommonDir);
+		state.writes["/fake/other-worktree"] = {
+			keys: ["statusBar.background", "statusBar.foreground"],
+			prior: {
+				"statusBar.background": "#bogus1",
+				"statusBar.foreground": "#bogus2",
+			},
+			addedExcludeLine: false,
+		};
+		brain.setRepoState(info.gitCommonDir, state);
+
+		await controller.resetAll();
+		controller.dispose();
+
+		assert.deepStrictEqual(
+			{ ...workbenchColors() },
+			before,
+			"config was restored to this controller's own recorded prior, not overwritten with the other worktree's bogus prior",
 		);
 	});
 });
