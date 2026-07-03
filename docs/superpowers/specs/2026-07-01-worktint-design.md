@@ -169,9 +169,9 @@ Commands:
 - Task 7 — `src/vscode/brain.ts` (`Brain` over `MementoLike`; `RepoState`, `WriteRecord`).
 - Task 8 — `src/vscode/{config,gitBranch,statusBarIndicator,settingsWriter}.ts`. Note: `SettingsWriter.applyChrome(color, toggles, gitCommonDir)` (dropped the unused `worktreePath` param from the plan); `isSettingsTracked(worktreePath)` exported.
 - Task 9 — `src/controller.ts` (`Controller`: `activate`, `resetThisWorktree`, `resetAll`, `pickColor`, `dispose`). Adds: cleanup when a repo drops to 1 worktree; revert-before-reapply so recorded `prior` stays the user's true state; title-bar keys only written when `window.titleBarStyle === 'custom'`.
+- Task 10 — Wired `src/extension.ts` (value import of `vscode`): `Brain(context.globalState)` + `Controller`, `activate(workspaceFolders[0])`, the 4 commands, `onDidChangeConfiguration` re-activate, and a `**/.git/worktrees/**` `FileSystemWatcher`. Build + typecheck + lint clean. **Interactive F5 smoke test (Step 3) still owed** — not runnable headless; static review confirms the dormant (no-git / single-worktree → `indicator.hide()`) vs. multi-worktree render paths. Its automated equivalent is Task 11.
 
 **Remaining:**
 
-- **Task 10** — Wire `src/extension.ts`: instantiate `Brain(context.globalState)` + `Controller`, run `activate(workspaceFolder)`, register the 4 commands, `onDidChangeConfiguration` re-activate, and a `**/.git/worktrees/**` `FileSystemWatcher`. Build, manual smoke test, commit. (Current `extension.ts` is still the no-op stub using `import type * as vscode` — replace with a value import.)
 - **Task 11** — Integration tests: add `tsconfig.test.json` (emit to `dist-test`, `rootDir: src`, `include: ["src/test"]`) and `src/test/integration/activation.test.ts` covering (a) single-worktree repo → `colorCustomizations` untouched, no indicator; (b) >1 worktree → Worktint keys written at Workspace scope + `.vscode/settings.json` added to `.git/info/exclude`; (c) `worktint.resetWorktree` restores prior + removes exclude line. Run `bun run test:integration`.
 - **Task 12** — `README.md` + final green (unit + integration + build + `bun run lint`).
