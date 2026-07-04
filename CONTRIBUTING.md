@@ -72,6 +72,19 @@ docs: clarify Bun setup in README
 Keep commits focused — one logical change per commit — and prefer a small
 number of clear commits over a single large one.
 
+## Releasing
+
+Releases are automated with [release-please](https://github.com/googleapis/release-please) and don't require manual version bumps or tagging.
+
+1. PR titles must be Conventional Commits: `fix:` bumps the patch version, `feat:` bumps the minor version (pre-1.0 behavior), and `feat!:` or a `BREAKING CHANGE:` footer bumps the breaking version.
+2. Merging a feature PR into `main` makes release-please open (or update) a standing "release" PR that bumps `package.json` and updates `CHANGELOG.md`.
+3. To ship a release, approve and merge that release PR. CI then tags the commit (`v<x.y.z>`) on the remote, creates a GitHub Release with generated notes, builds the `.vsix` and attaches it to the release, and publishes to the VS Code Marketplace / Open VSX when the PATs below are configured.
+
+### One-time repo setup
+
+- Under Settings → Actions → General → Workflow permissions, enable "Allow GitHub Actions to create and approve pull requests" — release-please needs this to open the release PR.
+- Optionally add repo secrets `VSCE_PAT` (VS Code Marketplace) and `OVSX_PAT` (Open VSX). Publishing to a marketplace is skipped if its PAT isn't set.
+
 ## Reporting bugs / requesting features
 
 Please use the issue templates under `.github/ISSUE_TEMPLATE/` when filing
