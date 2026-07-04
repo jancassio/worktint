@@ -22,3 +22,11 @@ bun.lock
 
 CONTRIBUTING.md
 *.vsix
+
+# README screenshots/hero don't need to ship — vsce rewrites relative image
+# links to the GitHub raw URLs. Only the extension icon must be in the VSIX.
+images/**
+!images/icon.png
+
+# macOS Finder cruft
+**/.DS_Store

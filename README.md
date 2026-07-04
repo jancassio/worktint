@@ -1,4 +1,4 @@
-# Worktint
+# ![Worktint - Git worktrees, color-coded](images/hero.png)
 
 [![VS Code Marketplace](https://img.shields.io/visual-studio-marketplace/v/jancassio.worktint?label=VS%20Code%20Marketplace&color=blue)](https://marketplace.visualstudio.com/items?itemName=jancassio.worktint)
 [![Installs](https://img.shields.io/visual-studio-marketplace/i/jancassio.worktint?label=installs)](https://marketplace.visualstudio.com/items?itemName=jancassio.worktint)
@@ -12,14 +12,11 @@ windows of the same repository are instantly distinguishable.
 
 ## Screenshots
 
-<!-- MAINTAINER TODO: capture images/hero.png — two side-by-side VS Code /
-     VS Codium windows on the same repo's worktrees, each tinted a distinct
-     color (title bar + status bar visible), to make the effect obvious at a
-     glance. -->
+| Dark                                             | Light                                             |
+| ------------------------------------------------ | ------------------------------------------------- |
+| ![Worktint on a dark theme](images/demo-dark.png) | ![Worktint on a light theme](images/demo-light.png) |
 
-![Two windows of the same repo, each tinted a different color per worktree](images/hero.png)
-
-*Two worktrees of the same repository, instantly distinguishable by color.*
+_Multiple git worktrees of the same repository, instantly distinguishable by color._
 
 Running several worktrees of one repo — say, a few AI agents each on their own
 branch — leaves you with a row of identical-looking editor windows. Worktint
@@ -85,23 +82,23 @@ theme-aware (curated light and dark sets, 8 colors each).
 
 All settings live under the `worktint.*` namespace and default to `true`.
 
-| Setting | Default | Description |
-| --- | --- | --- |
-| `worktint.chrome.enabled` | `true` | Tint window chrome for worktrees. |
-| `worktint.chrome.titleBar` | `true` | Tint the title bar (needs `window.titleBarStyle: custom`). |
-| `worktint.chrome.activityBar` | `true` | Tint the activity bar. |
-| `worktint.chrome.statusBar` | `true` | Tint the status bar. |
-| `worktint.chrome.editorTabs` | `true` | Tint the active editor-tab accent. |
-| `worktint.statusBarIndicator.enabled` | `true` | Show the colored status-bar worktree indicator. |
+| Setting                               | Default | Description                                                |
+| ------------------------------------- | ------- | ---------------------------------------------------------- |
+| `worktint.chrome.enabled`             | `true`  | Tint window chrome for worktrees.                          |
+| `worktint.chrome.titleBar`            | `true`  | Tint the title bar (needs `window.titleBarStyle: custom`). |
+| `worktint.chrome.activityBar`         | `true`  | Tint the activity bar.                                     |
+| `worktint.chrome.statusBar`           | `true`  | Tint the status bar.                                       |
+| `worktint.chrome.editorTabs`          | `true`  | Tint the active editor-tab accent.                         |
+| `worktint.statusBarIndicator.enabled` | `true`  | Show the colored status-bar worktree indicator.            |
 
 ## Commands
 
-| Command | Description |
-| --- | --- |
-| `Worktint: Pick color for this worktree` | Override this worktree's color from the palette. |
-| `Worktint: Reset this worktree` | Restore this worktree's colors and remove the exclude line. |
-| `Worktint: Reset all` | Revert every worktree Worktint has colored in this repo. |
-| `Worktint: Toggle chrome coloring` | Turn the chrome tint on or off. |
+| Command                                  | Description                                                 |
+| ---------------------------------------- | ----------------------------------------------------------- |
+| `Worktint: Pick color for this worktree` | Override this worktree's color from the palette.            |
+| `Worktint: Reset this worktree`          | Restore this worktree's colors and remove the exclude line. |
+| `Worktint: Reset all`                    | Revert every worktree Worktint has colored in this repo.    |
+| `Worktint: Toggle chrome coloring`       | Turn the chrome tint on or off.                             |
 
 ## Requirements
 
