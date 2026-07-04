@@ -8,52 +8,61 @@ name: Release
 
 on:
   push:
-    tags:
-      - "v*"
+    branches:
+      - main
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   release:
     name: Build and publish
     runs-on: ubuntu-latest
     steps:
+      - name: Release Please
+        id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
       - name: Checkout
+        if: ${{ steps.release.outputs.release_created }}
         uses: actions/checkout@v7
 
       - name: Set up Bun
+        if: ${{ steps.release.outputs.release_created }}
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
 
       - name: Install dependencies
+        if: ${{ steps.release.outputs.release_created }}
         run: bun install --frozen-lockfile
 
       - name: Build extension
+        if: ${{ steps.release.outputs.release_created }}
         run: bun run build
 
       - name: Package VSIX
+        if: ${{ steps.release.outputs.release_created }}
         run: bun run package
 
-      - name: Locate VSIX
-        id: vsix
-        run: echo "path=$(ls ./*.vsix | head -n 1)" >> "$GITHUB_OUTPUT"
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v3
-        with:
-          files: ${{ steps.vsix.outputs.path }}
-          generate_release_notes: true
+      - name: Upload VSIX to release
+        if: ${{ steps.release.outputs.release_created }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "${{ steps.release.outputs.tag_name }}" ./*.vsix --clobber
 
       - name: Publish to VS Code Marketplace
-        if: env.VSCE_PAT != ''
+        if: ${{ steps.release.outputs.release_created && env.VSCE_PAT != '' }}
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
         run: bun run publish:vsce
 
       - name: Publish to Open VSX
-        if: env.OVSX_PAT != ''
+        if: ${{ steps.release.outputs.release_created && env.OVSX_PAT != '' }}
         env:
           OVSX_PAT: ${{ secrets.OVSX_PAT }}
         run: bun run publish:ovsx
