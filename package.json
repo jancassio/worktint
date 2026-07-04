@@ -2,7 +2,7 @@
 	"name": "worktint",
 	"displayName": "Worktint",
 	"description": "Auto-colors VS Code windows per git worktree. Dormant until a repo has more than one worktree.",
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"publisher": "jancassio",
 	"license": "MIT",
 	"engines": {
