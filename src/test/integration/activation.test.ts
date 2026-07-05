@@ -264,6 +264,13 @@ suite("Worktint activation", () => {
 		);
 
 		try {
+			// The worktree watcher (a recursive FileSystemWatcher rooted at the
+			// external git-common-dir) arms asynchronously in the VS Code host,
+			// with no "ready" signal. Give it a beat to arm before we create
+			// worktrees/<name>/, otherwise on a loaded CI runner git can win the
+			// race and the onDidCreate is missed, timing out the waitFor below.
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+
 			const worktreeParent = fs.mkdtempSync(
 				path.join(os.tmpdir(), "worktint-watch-wt-"),
 			);
